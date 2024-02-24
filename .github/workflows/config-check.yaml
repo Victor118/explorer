@@ -9,6 +9,7 @@ on:
    paths:
       - 'chains/mainnet/**'
       - 'chains/testnet/**'
+      - 'chains/localdev/**'
 
 jobs:
   deploy:

@@ -13,8 +13,9 @@ const wallet = ref("keplr")
 const network = ref(NetworkType.Mainnet)
 const mainnet = ref([] as ChainConfig[])
 const testnet = ref([] as ChainConfig[])
+const localdev = ref([] as ChainConfig[])
 const chains = computed(() => {
-    return network.value === NetworkType.Mainnet? mainnet.value : testnet.value
+    return network.value === NetworkType.Mainnet? mainnet.value : NetworkType.Testnet ? testnet.value : localdev.value
 })
 
 onMounted(() => {
@@ -27,6 +28,9 @@ onMounted(() => {
     })
     dashboard.loadLocalConfig(NetworkType.Testnet).then((res) => {
         testnet.value = Object.values<ChainConfig>(res)
+    })
+    dashboard.loadLocalConfig(NetworkType.Localdev).then((res) => {
+        localdev.value = Object.values<ChainConfig>(res)
     })
 })
 
@@ -55,7 +59,6 @@ async function initParamsForKeplr() {
         bip44: {
             coinType: Number(chain.coinType),
         },
-        coinType: Number(chain.coinType),
         bech32Config: {
             bech32PrefixAccAddr: chain.bech32Prefix,
             bech32PrefixAccPub: `${chain.bech32Prefix}pub`,
@@ -81,7 +84,6 @@ async function initParamsForKeplr() {
                 gasPriceStep,
             },
         ],
-        gasPriceStep,
         stakeCurrency: {
             coinDenom: chain.assets[0].symbol,
             coinMinimalDenom: chain.assets[0].base,
@@ -148,6 +150,7 @@ function suggest() {
             <select v-model="network" class="select select-bordered">
                 <option :value="NetworkType.Mainnet">Mainnet</option>
                 <option :value="NetworkType.Testnet">Testnet</option>
+                <option :value="NetworkType.Localdev">Localdev</option>
             </select>
             <select v-model="selected" class="select select-bordered mx-5" @change="onchange">
                 <option v-for="c in chains" :value="c">
